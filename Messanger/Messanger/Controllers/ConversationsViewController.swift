@@ -6,29 +6,31 @@
 //
 
 import UIKit
+import FirebaseAuth
 
 class ConversationsViewController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view.
-        isLoggedIn()
         view.backgroundColor = UIColor.red
+        
+    }
+    
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        isLoggedIn()
     }
     
     // check if the user logged in
     // if not go to login page
-    func isLoggedIn() {
-        let isLogged = UserDefaults.standard.bool(forKey: "loggedIn")
-        
-        if !isLogged {
+    private func isLoggedIn() {
+        if FirebaseAuth.Auth.auth().currentUser == nil {
             print("Not logged in, move to login page")
             let vc = storyboard?.instantiateViewController(withIdentifier: "loginView") as! LoginViewController
             vc.title = "Login"
             self.navigationController?.setViewControllers([vc], animated: true)
         }
     }
-
-
 }
 

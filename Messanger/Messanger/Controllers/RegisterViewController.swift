@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import FirebaseAuth
 
 class RegisterViewController: UIViewController {
 
@@ -85,6 +86,25 @@ class RegisterViewController: UIViewController {
             return
         }
         print("Signing up..")
+        DatabaseManager.shared.isUserExist(with: email, completion: { [weak self] exists in
+            guard let strongSelf = self else {
+                return
+            }
+            guard !exists else {
+                // user already exist
+                print("user already exist!")
+                strongSelf.showAlert(title: "Invalid credential", message: "Email already exist!")
+                return
+            }
+            FirebaseAuth.Auth.auth().createUser(withEmail: email, password: password, completion: { authResult, error in
+                guard error == nil, let result = authResult else {
+                    print("Error creating a user \(error)")
+                    return
+                }
+                DatabaseManager.shared.insertUser(with: UserStruct(name: name, email: email))
+                strongSelf.navigationController?.popViewController(animated: true)
+            })
+        })
     }
     
     func showAlert(title: String, message: String) {

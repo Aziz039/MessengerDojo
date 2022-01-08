@@ -7,6 +7,10 @@ target 'Messanger' do
 
   # Pods for Messanger
 
+  pod 'Firebase/Core' 
+  pod 'Firebase/Auth'
+  pod 'Firebase/Database'
+
   target 'MessangerTests' do
     inherit! :search_paths
     # Pods for testing

@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import FirebaseAuth
 
 class LoginViewController: UIViewController {
 
@@ -30,6 +31,7 @@ class LoginViewController: UIViewController {
     // hide tab bar when back from Register
     override func viewDidAppear(_ animated: Bool) {
         self.navigationController?.setNavigationBarHidden(true, animated: true)
+        isLoggedIn()
     }
     
     @IBAction func loginButtonPressed(_ sender: UIButton) {
@@ -73,12 +75,36 @@ class LoginViewController: UIViewController {
             return
         }
         print("Logging in..")
+        FirebaseAuth.Auth.auth().signIn(withEmail: email, password: password, completion: { [weak self] authResult, error in
+            guard let strongSelf = self else {
+                return
+            }
+            guard let result = authResult, error == nil else {
+                print("Failed to login")
+                strongSelf.showAlert(title: "Wrong credentials", message: "Failed to login, please signup if you don't have an account. It's FREE!")
+                return
+            }
+            let user = result.user
+            print("Logged in successfully with: \(user) ")
+            strongSelf.navigationController?.dismiss(animated: true, completion: nil)
+        })
+        
     }
     
     func showAlert(title: String, message: String) {
         let alert = UIAlertController(title: title, message: message, preferredStyle: .alert)
         alert.addAction(UIAlertAction(title: "dismiss", style: .cancel, handler: nil))
         present(alert, animated: true, completion: nil)
+    }
+    
+    // check if the user logged in
+    // if not go to login page
+    private func isLoggedIn() {
+        if FirebaseAuth.Auth.auth().currentUser != nil {
+            print("Already logged in, move to login page")
+            let vc = storyboard?.instantiateViewController(withIdentifier: "mainView") as! ConversationsViewController
+            self.navigationController?.setViewControllers([vc], animated: true)
+        }
     }
     
     /*
